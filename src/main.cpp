@@ -53,6 +53,9 @@ extern "C" void app_main() {
             
             ESP_LOGI(TAG, "Rx Command Received: %f steer angle, %f",cmd.steer_angle, cmd.throttle);
         }
+
+        control_servo(LEDC_CHANNEL_SERVO, cmd.steer_angle);
+        control_servo(LEDC_CHANNEL_THROTTLE, cmd.throttle);
         vTaskDelay(pdMS_TO_TICKS(30));
     }
 }

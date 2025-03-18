@@ -55,6 +55,6 @@ bool ESPHAL_UDPServer::receive_data(uint8_t *data, size_t len)
         }
         return false;
     }
-    ESP_LOGI(TAG, "Received %d bytes from %s:%d", bytes_received, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
+    //ESP_LOGI(TAG, "Received %d bytes from %s:%d", bytes_received, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
     return true;
 }
