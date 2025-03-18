@@ -4,7 +4,7 @@
 #include "ESPHAL_Wifi.hpp"
 #include "nvs_flash.h"
 #include "ESPHAL_UDPServer.hpp"
-#include "driver/ledc.h"
+#include "actuators.h"
 
 
 constexpr static char* TAG = "MAIN";
@@ -28,51 +28,6 @@ constexpr static uint32_t LEDC_TIMER_MAX_DUTY = (1 << 13) - 1;  // 13-bit resolu
 #define THROTTLE_SERVO_LEDC_CHANNEL LEDC_CHANNEL_1
 #define THROTTLE_SERVO_LEDC_GPIO 19
 
-void control_servo(ledc_channel_t channel, float ontime_percent)
-{
-    constexpr static uint32_t MIN_SERVO_DUTY_US = 1000;  // 1ms pulse width (0°)
-    constexpr static uint32_t MAX_SERVO_DUTY_US = 2000;  // 2ms pulse width (180°)
-    constexpr static uint32_t SERVO_DUTY_US_RANGE = MAX_SERVO_DUTY_US - MIN_SERVO_DUTY_US;
-
-    // Convert percentage to pulse width (microseconds)
-    uint32_t duty_us = MIN_SERVO_DUTY_US + (ontime_percent * SERVO_DUTY_US_RANGE);
-    const float duty_ontime_in_servo_period = static_cast<float>(duty_us) / static_cast<float>(SERVO_PERIOD_US);
-
-    // Convert microseconds to duty cycle based on 1MHz timer frequency
-    uint32_t duty = (duty_ontime_in_servo_period * LEDC_TIMER_MAX_DUTY) / LEDC_TIMER_FREQ_HZ;
-
-    // Set duty cycle
-    ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty));
-    ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, channel));
-}
-
-void init_pwm(void)
-{
-    ledc_timer_config_t timer_conf;
-    timer_conf.speed_mode = LEDC_HIGH_SPEED_MODE;
-    timer_conf.timer_num = LEDC_SERVO_TIMER;
-    timer_conf.duty_resolution = LEDC_TIMER_13_BIT;
-    timer_conf.freq_hz = LEDC_TIMER_FREQ_HZ;
-    ESP_ERROR_CHECK(ledc_timer_config(&timer_conf));
-
-    ledc_channel_config_t channel_conf;
-    channel_conf.speed_mode = LEDC_HIGH_SPEED_MODE;
-    channel_conf.channel = STEERING_SERVO_LEDC_CHANNEL;
-    channel_conf.intr_type = LEDC_INTR_DISABLE;
-    channel_conf.timer_sel = LEDC_SERVO_TIMER;
-    channel_conf.gpio_num = STEERING_SERVO_LEDC_GPIO;
-    channel_conf.duty = 0;
-    channel_conf.hpoint = 0;
-    channel_conf.sleep_mode = LEDC_SLEEP_MODE_NO_ALIVE_NO_PD;
-
-    ESP_ERROR_CHECK(ledc_channel_config(&channel_conf));
-    channel_conf.channel = THROTTLE_SERVO_LEDC_CHANNEL;
-    channel_conf.gpio_num = THROTTLE_SERVO_LEDC_GPIO;
-    ESP_ERROR_CHECK(ledc_channel_config(&channel_conf));
-
-    ESP_LOGI(TAG, "PWM initialized.");
-}
-
 extern "C" void app_main() {
 
     ESP_LOGI(TAG, "Starting ESP-IDF application...");
@@ -85,6 +40,7 @@ extern "C" void app_main() {
     ESP_LOGI(TAG, "Wi-Fi initialized.");
     udp_server.init();
     ESP_LOGI(TAG, "UDP server initialized.");
+    //init_pwm();
     init_pwm();
 
     while (true) {
