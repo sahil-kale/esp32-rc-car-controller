@@ -9,25 +9,25 @@ STEERING_SCALE = 0.5  # Scale keyboard input to desired steering range (e.g., -3
 STEERING_OFFSET = 0.5
 THROTTLE_SCALE = 0.5   # Scale keyboard input to desired throttle range (e.g., 0 to 1)
 THROTTLE_OFFSET = 0.5
-UPDATE_RATE = 1 / 30.0  # 50Hz update rate
+UPDATE_RATE = 1 / 10.0  # 50Hz update rate
 
 def get_keyboard_input():
     """Reads WASD keyboard input and returns normalized steer angle and throttle."""
     keys = pygame.key.get_pressed()
 
-    steer_angle = 0
-    throttle = 0
+    steer_angle = STEERING_OFFSET
+    throttle = THROTTLE_OFFSET
 
 
     
     if keys[pygame.K_a]:
-        steer_angle = -STEERING_SCALE  # Turn left
+        steer_angle = -STEERING_SCALE + STEERING_OFFSET  # Turn left
     if keys[pygame.K_d]:
-        steer_angle = STEERING_SCALE   # Turn right
+        steer_angle = STEERING_SCALE + STEERING_OFFSET  # Turn right
     if keys[pygame.K_w]:
-        throttle = THROTTLE_SCALE  # Accelerate
+        throttle = THROTTLE_SCALE + THROTTLE_OFFSET  # Accelerate
     if keys[pygame.K_s]:
-        throttle = -THROTTLE_SCALE  # Reverse
+        throttle = -THROTTLE_SCALE + THROTTLE_OFFSET # Reverse
     
     return steer_angle, throttle
 

@@ -59,5 +59,5 @@ void control_servo(ledc_channel_t channel, float ontime_percent) {
     ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, channel, duty));
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, channel));
 
-    ESP_LOGI(TAG, "Set channel %d duty to %ld (%.2fms)", channel, duty, pulse_width_us / 1000.0);
+    //ESP_LOGI(TAG, "Set channel %d duty to %ld (%.2fms)", channel, duty, pulse_width_us / 1000.0);
 }

@@ -46,16 +46,15 @@ extern "C" void app_main() {
     while (true) {
         // Check for received data
         static uint8_t rxbuf_test[1024U] = {0};
-        udp_rx_cmd_t cmd = {0.0F, 0.0F};
+        udp_rx_cmd_t cmd = {0.5F, 0.0F};
         if(udp_server.receive_data(rxbuf_test, sizeof(rxbuf_test)))
         {            
             memcpy(&cmd, rxbuf_test, sizeof(cmd));
             
             ESP_LOGI(TAG, "Rx Command Received: %f steer angle, %f",cmd.steer_angle, cmd.throttle);
+            control_servo(LEDC_CHANNEL_SERVO, cmd.steer_angle);
+            control_servo(LEDC_CHANNEL_THROTTLE, cmd.throttle);
         }
-
-        control_servo(LEDC_CHANNEL_SERVO, cmd.steer_angle);
-        control_servo(LEDC_CHANNEL_THROTTLE, cmd.throttle);
-        vTaskDelay(pdMS_TO_TICKS(30));
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
