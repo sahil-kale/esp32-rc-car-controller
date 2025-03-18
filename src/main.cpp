@@ -28,13 +28,14 @@ extern "C" void app_main() {
     ESP_LOGI(TAG, "UDP server initialized.");
 
     while (true) {
-        ESP_LOGI(TAG, "Running main loop...");
         // Check for received data
         static uint8_t rxbuf_test[1024U] = {0};
-        udp_server.receive_data(rxbuf_test, sizeof(rxbuf_test));
-
-        udp_rx_cmd_t* cmd = (udp_rx_cmd_t*)rxbuf_test; 
-        
-        ESP_LOGI(TAG, "Rx Command Received: %f steer angle, %f",cmd->steer_angle, cmd->throttle);
+        if(udp_server.receive_data(rxbuf_test, sizeof(rxbuf_test)))
+        {            
+            udp_rx_cmd_t* cmd = (udp_rx_cmd_t*)rxbuf_test; 
+            
+            ESP_LOGI(TAG, "Rx Command Received: %f steer angle, %f",cmd->steer_angle, cmd->throttle);
+        }
+        vTaskDelay(pdMS_TO_TICKS(20));
     }
 }

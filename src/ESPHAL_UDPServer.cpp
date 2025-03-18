@@ -47,7 +47,7 @@ bool ESPHAL_UDPServer::receive_data(uint8_t *data, size_t len)
     if (bytes_received < 0) {
         if (errno == EWOULDBLOCK)
         {
-            ESP_LOGI(TAG, "No New Data Received");
+            //ESP_LOGI(TAG, "No New Data Received");
         }
         else
         {
