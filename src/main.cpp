@@ -3,9 +3,11 @@
 #include "esp_log.h"
 #include "ESPHAL_Wifi.hpp"
 #include "nvs_flash.h"
+#include "ESPHAL_UDPServer.hpp"
 
 constexpr static char* TAG = "MAIN";
 static ESPHAL_Wifi wifi;
+static ESPHAL_UDPServer udp_server;
 
 extern "C" void app_main() {
 
@@ -17,9 +19,14 @@ extern "C" void app_main() {
     // Initialize the Wi-Fi
     wifi.init();
     ESP_LOGI(TAG, "Wi-Fi initialized.");
+    udp_server.init();
+    ESP_LOGI(TAG, "UDP server initialized.");
 
     while (true) {
         ESP_LOGI(TAG, "Running main loop...");
+        // Check for received data
+        static uint8_t rxbuf_test[ESPHAL_UDPServer::MAX_RX_BUFFER] = {0};
+        udp_server.receive_data(rxbuf_test, sizeof(rxbuf_test));
         vTaskDelay(pdMS_TO_TICKS(1000));  // Delay for 1 second
     }
 }
