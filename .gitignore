@@ -1,3 +1,4 @@
 .pio
 esp32-rc-venv/
 include/config.hpp
+__pycache__/

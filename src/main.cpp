@@ -25,7 +25,7 @@ extern "C" void app_main() {
     while (true) {
         ESP_LOGI(TAG, "Running main loop...");
         // Check for received data
-        static uint8_t rxbuf_test[ESPHAL_UDPServer::MAX_RX_BUFFER] = {0};
+        static uint8_t rxbuf_test[1024U] = {0};
         udp_server.receive_data(rxbuf_test, sizeof(rxbuf_test));
         vTaskDelay(pdMS_TO_TICKS(1000));  // Delay for 1 second
     }

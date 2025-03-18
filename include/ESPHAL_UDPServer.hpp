@@ -14,7 +14,6 @@ class ESPHAL_UDPServer {
          */
         bool receive_data(uint8_t *data, size_t len);
 
-    constexpr static size_t MAX_RX_BUFFER = 1024;
     private:
     constexpr static char *TAG = "UDP_SERVER";
     int8_t sock = 0;
