@@ -5,22 +5,28 @@ from bike_command_model import BicycleModelTranslator
 import argparse
 
 # Constants
-STEERING_SCALE = 30.0  # Scale joystick input to desired steering range (e.g., -30 to +30 degrees)
-THROTTLE_SCALE = 1.0   # Scale trigger input to desired throttle range (e.g., 0 to 1)
+STEERING_SCALE = 30.0  # Scale keyboard input to desired steering range (e.g., -30 to +30 degrees)
+THROTTLE_SCALE = 1.0   # Scale keyboard input to desired throttle range (e.g., 0 to 1)
 UPDATE_RATE = 1 / 50.0  # 50Hz update rate
 
+steer_angle = 0
+throttle = 0
 
-def get_controller_input():
-    """Reads Xbox controller input and returns normalized steer angle and throttle."""
-    pygame.event.pump()
+def get_keyboard_input():
+    """Reads WASD keyboard input and returns normalized steer angle and throttle."""
+    keys = pygame.key.get_pressed()
+
+    global steer_angle, throttle
+
     
-    # Left Stick X-axis for steering (-1 to 1)
-    steer_input = pygame.joystick.Joystick(0).get_axis(0)
-    steer_angle = steer_input * STEERING_SCALE  # Convert to degrees
-    
-    # Right trigger (accelerator) (0 to 1)
-    throttle_input = (pygame.joystick.Joystick(0).get_axis(5) + 1) / 2  # Normalize to 0-1
-    throttle = throttle_input * THROTTLE_SCALE
+    if keys[pygame.K_a]:
+        steer_angle = -STEERING_SCALE  # Turn left
+    if keys[pygame.K_d]:
+        steer_angle = STEERING_SCALE   # Turn right
+    if keys[pygame.K_w]:
+        throttle = THROTTLE_SCALE  # Accelerate
+    if keys[pygame.K_s]:
+        throttle = -THROTTLE_SCALE  # Reverse
     
     return steer_angle, throttle
 
@@ -36,16 +42,19 @@ def main():
     controller = WifiTalkerController(args.ip, args.port, debug=args.debug)
     bike_model = BicycleModelTranslator(controller)
 
-    # Initialize pygame and the joystick
+    # Initialize pygame
     pygame.init()
-    joystick = pygame.joystick.Joystick(0)
-    joystick.init()
+    screen = pygame.display.set_mode((400, 300))  # Small window to capture keyboard input
+    pygame.display.set_caption("WASD Controller")
 
-    print("Controller initialized. Sending commands at 50Hz...")
+    print("WASD control initialized. Sending commands at 50Hz...")
     try:
         while True:
-            steer_angle, throttle = get_controller_input()
+            pygame.event.pump()
+            steer_angle, throttle = get_keyboard_input()
             bike_model.send_command(steer_angle, throttle)
+            if args.debug:
+                print(f"Steer Angle: {steer_angle}, Throttle: {throttle}")
             time.sleep(UPDATE_RATE)  # Maintain 50Hz loop
     except KeyboardInterrupt:
         print("Stopping...")

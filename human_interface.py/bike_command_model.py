@@ -7,5 +7,5 @@ class BicycleModelTranslator:
 
     def send_command(self, steer_angle, throttle):
         packed_data = struct.pack(self.struct_code, steer_angle, throttle)
-        self.wifi_talker.send_data(packed_data)
+        self.wifi_talker.send_binary(packed_data)
 
