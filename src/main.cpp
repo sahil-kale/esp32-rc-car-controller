@@ -16,17 +16,12 @@ typedef struct __attribute__((packed)) {
     float throttle;
 } udp_rx_cmd_t;
 
-constexpr static uint32_t SERVO_PERIOD_US = 50 * 1000;
-constexpr static uint32_t LEDC_TIMER_FREQ_HZ = 1000 * 1000;
-constexpr static uint32_t LEDC_TIMER_MAX_DUTY = (1 << 13) - 1;  // 13-bit resolution (8191)
+constexpr static uint32_t MAX_PACKET_TIMEOUT = 200U;
+static uint32_t last_packet_time = MAX_PACKET_TIMEOUT;
 
-#define LEDC_SERVO_TIMER LEDC_TIMER_1
+constexpr static udp_rx_cmd_t SAFE_CMD = {0.65F, 0.5F}; // Default safe command
 
-#define STEERING_SERVO_LEDC_CHANNEL LEDC_CHANNEL_0
-#define STEERING_SERVO_LEDC_GPIO 18
-
-#define THROTTLE_SERVO_LEDC_CHANNEL LEDC_CHANNEL_1
-#define THROTTLE_SERVO_LEDC_GPIO 19
+static udp_rx_cmd_t cmd = SAFE_CMD;
 
 extern "C" void app_main() {
 
@@ -46,15 +41,24 @@ extern "C" void app_main() {
     while (true) {
         // Check for received data
         static uint8_t rxbuf_test[1024U] = {0};
-        udp_rx_cmd_t cmd = {0.5F, 0.0F};
+
         if(udp_server.receive_data(rxbuf_test, sizeof(rxbuf_test)))
         {            
             memcpy(&cmd, rxbuf_test, sizeof(cmd));
             
             ESP_LOGI(TAG, "Rx Command Received: %f steer angle, %f",cmd.steer_angle, cmd.throttle);
-            control_servo(LEDC_CHANNEL_SERVO, cmd.steer_angle);
-            control_servo(LEDC_CHANNEL_THROTTLE, cmd.throttle);
+            last_packet_time = 0;
         }
+
+        if (last_packet_time > MAX_PACKET_TIMEOUT) {
+            // No packet received for a while, revert to safe command
+            cmd = SAFE_CMD;
+        }
+
+        control_servo(LEDC_CHANNEL_SERVO, cmd.steer_angle);
+        control_servo(LEDC_CHANNEL_THROTTLE, cmd.throttle);
+        
+        last_packet_time += 10U;
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
