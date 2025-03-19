@@ -5,9 +5,9 @@ from bike_command_model import BicycleModelTranslator
 import argparse
 
 # Constants
-STEERING_SCALE = 0.5  # Scale keyboard input to desired steering range (e.g., -30 to +30 degrees)
-STEERING_OFFSET = 0.5
-THROTTLE_SCALE = 0.5   # Scale keyboard input to desired throttle range (e.g., 0 to 1)
+STEERING_SCALE = 0.25  # Scale keyboard input to desired steering range (e.g., -30 to +30 degrees)
+STEERING_OFFSET = 0.65
+THROTTLE_SCALE = 0.2   # Scale keyboard input to desired throttle range (e.g., 0 to 1)
 THROTTLE_OFFSET = 0.5
 UPDATE_RATE = 1 / 10.0  # 50Hz update rate
 
